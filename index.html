@@ -1,0 +1,1027 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Riddly — Free Riddle Generator: Riddles with Answers for Kids &amp; Adults</title>
+<meta name="description" content="Riddly is a free riddle generator with 200 original riddles with answers — hard riddles for adults, funny riddles for kids, a 3-step hint ladder, timed riddle battles and a daily riddle streak calendar.">
+<meta name="keywords" content="riddles with answers, hard riddles for adults, funny riddles for kids, riddle generator, brain teasers">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#1c1410; --primary:#fbbf24; --accent:#4ade80; }
+  html{ scroll-behavior:smooth; }
+  body{ background:var(--bg); color:#f5ead6; font-family:'Nunito',system-ui,sans-serif; }
+  h1,h2,h3,.font-display{ font-family:'Baloo 2',cursive; }
+  .riddle-card{
+    background:#2a1f16;
+    border:3px dashed var(--primary);
+    border-radius:1.25rem;
+    box-shadow:0 10px 30px rgba(0,0,0,.45), inset 0 0 0 6px rgba(251,191,36,.05);
+    transform:rotate(-1deg);
+    position:relative; overflow:hidden;
+  }
+  .riddle-card.alt{ transform:rotate(1deg); }
+  .riddle-card::before{
+    content:"?"; position:absolute; right:-.5rem; top:-2.2rem;
+    font-family:'Baloo 2',cursive; font-size:9rem; font-weight:800;
+    color:rgba(251,191,36,.10); pointer-events:none; line-height:1;
+  }
+  .ticket-btn{
+    background:var(--primary); color:#1c1410; font-family:'Baloo 2',cursive; font-weight:700;
+    border-radius:.9rem; padding:.6rem 1.2rem; border:2px solid #1c1410;
+    box-shadow:3px 3px 0 #000; transition:transform .08s ease, box-shadow .08s ease;
+  }
+  .ticket-btn:hover{ transform:translate(-1px,-1px); box-shadow:4px 4px 0 #000; }
+  .ticket-btn:active{ transform:translate(2px,2px); box-shadow:1px 1px 0 #000; }
+  .ticket-btn.green{ background:var(--accent); }
+  .ticket-btn.ghost{ background:transparent; color:var(--primary); border:2px dashed var(--primary); box-shadow:none; }
+  .chip{
+    border:2px solid rgba(251,191,36,.35); color:#f5ead6; border-radius:999px;
+    padding:.3rem .9rem; font-weight:700; font-size:.85rem; cursor:pointer; transition:all .15s ease;
+    background:rgba(251,191,36,.06); white-space:nowrap;
+  }
+  .chip:hover{ border-color:var(--primary); }
+  .chip.active{ background:var(--primary); color:#1c1410; border-color:var(--primary); }
+  .tab-pill{ font-family:'Baloo 2',cursive; font-weight:700; border-radius:999px; padding:.55rem 1.4rem;
+    border:2px solid rgba(251,191,36,.4); color:#f5ead6; cursor:pointer; transition:all .15s ease; background:transparent; }
+  .tab-pill.active{ background:var(--primary); color:#1c1410; border-color:var(--primary); box-shadow:3px 3px 0 #000; }
+  .hint-stub{
+    background:rgba(74,222,128,.10); border:2px dashed var(--accent); border-radius:.9rem;
+    padding:.7rem 1rem; color:#d9fbe4;
+  }
+  .badge-diff{ font-size:.72rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase;
+    border-radius:999px; padding:.2rem .7rem; }
+  .diff-easy{ background:rgba(74,222,128,.18); color:var(--accent); border:1px solid var(--accent); }
+  .diff-medium{ background:rgba(251,191,36,.15); color:var(--primary); border:1px solid var(--primary); }
+  .diff-hard{ background:rgba(248,113,113,.15); color:#f87171; border:1px solid #f87171; }
+  .cat-badge{ font-size:.72rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase;
+    border-radius:999px; padding:.2rem .7rem; background:rgba(245,234,214,.08); color:#f5ead6; border:1px solid rgba(245,234,214,.25); }
+  .timer-track{ height:.9rem; background:rgba(245,234,214,.12); border-radius:999px; overflow:hidden; }
+  .timer-fill{ height:100%; background:linear-gradient(90deg,var(--accent),var(--primary)); border-radius:999px; transition:width 1s linear; }
+  .cal-day{ aspect-ratio:1; border-radius:.5rem; display:flex; align-items:center; justify-content:center;
+    font-size:.7rem; font-weight:700; background:rgba(245,234,214,.06); color:rgba(245,234,214,.45); border:1px solid rgba(245,234,214,.12); }
+  .cal-day.solved{ background:var(--accent); color:#1c1410; border-color:var(--accent); }
+  .cal-day.today{ outline:2px dashed var(--primary); outline-offset:2px; }
+  details.faq{ background:#241a12; border:2px solid rgba(251,191,36,.25); border-radius:1rem; padding:1rem 1.25rem; }
+  details.faq summary{ cursor:pointer; font-family:'Baloo 2',cursive; font-weight:700; font-size:1.05rem; color:var(--primary); }
+  details.faq summary::-webkit-details-marker{ display:none; }
+  details.faq summary::before{ content:"+ "; color:var(--accent); }
+  details.faq[open] summary::before{ content:"– "; }
+  .article-body p{ margin-bottom:1rem; line-height:1.75; color:#e9dcc3; }
+  .article-body h2{ color:var(--primary); font-size:1.5rem; font-weight:800; margin:2rem 0 .75rem; }
+  .article-body h3{ color:var(--accent); font-size:1.15rem; font-weight:700; margin:1.25rem 0 .5rem; }
+  .article-body ul{ list-style:disc; padding-left:1.5rem; margin-bottom:1rem; color:#e9dcc3; line-height:1.7; }
+  .article-body strong{ color:#fff7e6; }
+  .confetti-bit{ position:fixed; top:-12px; width:10px; height:14px; z-index:60; pointer-events:none;
+    animation:confetti-fall linear forwards; border-radius:2px; }
+  @keyframes confetti-fall{ to{ transform:translateY(105vh) rotate(720deg); } }
+  .switch{ position:relative; display:inline-block; width:52px; height:28px; flex:none; }
+  .switch input{ opacity:0; width:0; height:0; }
+  .slider{ position:absolute; inset:0; cursor:pointer; background:rgba(245,234,214,.15);
+    border:2px solid rgba(251,191,36,.4); border-radius:999px; transition:.2s; }
+  .slider:before{ content:""; position:absolute; height:18px; width:18px; left:3px; top:3px;
+    background:var(--primary); border-radius:50%; transition:.2s; }
+  .switch input:checked + .slider{ background:rgba(74,222,128,.25); border-color:var(--accent); }
+  .switch input:checked + .slider:before{ transform:translateX(24px); background:var(--accent); }
+  .field{ background:#160f0a; border:2px solid rgba(251,191,36,.35); border-radius:.9rem;
+    padding:.65rem 1rem; color:#f5ead6; width:100%; }
+  .field:focus{ outline:none; border-color:var(--primary); }
+  select.field{ width:auto; }
+  .no-print{ }
+  @media print{ .no-print{ display:none !important; } }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {"@type": "Question", "name": "Where can I find good riddles with answers?",
+     "acceptedAnswer": {"@type": "Answer", "text": "Riddly offers 200 original riddles with answers built right in — no sign-up needed. Every riddle comes with a 3-step hint ladder and a revealable answer, across ten category packs from wordplay to tricky logic."}},
+    {"@type": "Question", "name": "Does Riddly have hard riddles for adults?",
+     "acceptedAnswer": {"@type": "Answer", "text": "Yes. Riddly includes a dedicated Hard difficulty tier plus a Tricky Logic category pack full of hard riddles for adults, lateral-thinking puzzles and classic stumpers, all filterable from the difficulty menu."}},
+    {"@type": "Question", "name": "Are there funny riddles for kids on Riddly?",
+     "acceptedAnswer": {"@type": "Answer", "text": "Yes. Turn on Kids Mode to filter the collection to 188 kid-safe riddles, including a Silly Jokes for Kids pack packed with funny riddles for kids — clean jokes, puns and giggles with zero tricky adult content."}},
+    {"@type": "Question", "name": "How does the 3-step hint ladder work?",
+     "acceptedAnswer": {"@type": "Answer", "text": "Each riddle has three graduated hints: Hint 1 is a gentle nudge, Hint 2 is a stronger clue, and Hint 3 nearly gives the game away. Reveal them one at a time — the answer stays hidden until you choose to reveal it."}},
+    {"@type": "Question", "name": "How does the timed riddle battle mode work?",
+     "acceptedAnswer": {"@type": "Answer", "text": "Pick 30, 60 or 90 seconds, then solve as many riddles as you can before time runs out. Correct answers earn points based on hints used and time left, and consecutive correct answers build a streak. Your best score is saved on your device."}},
+    {"@type": "Question", "name": "How does the daily riddle streak calendar work?",
+     "acceptedAnswer": {"@type": "Answer", "text": "A new riddle is picked for you every day. Solve it to mark the day on your streak calendar and grow your streak — solve on consecutive days to keep it alive. Everything is stored privately in your browser."}}
+  ]
+}
+</script>
+</head>
+<body id="top" class="min-h-screen">
+<header class="sticky top-0 z-50 border-b-2 border-dashed" style="background:rgba(28,20,16,.96); border-color:rgba(251,191,36,.35);">
+  <div class="mx-auto max-w-6xl px-4 sm:px-6 py-3 flex items-center justify-between">
+    <a href="#top" class="font-display text-2xl font-extrabold tracking-tight" style="color:#fbbf24;">Riddly<span style="color:#4ade80;">?</span></a>
+    <nav class="flex items-center gap-5 text-sm font-bold">
+      <a href="#top" class="hover:underline" style="color:#f5ead6;">Home</a>
+      <a href="https://fixoraa.tech" class="hover:underline" style="color:#4ade80;">More Tools</a>
+    </nav>
+  </div>
+</header>
+
+<div class="no-print mx-auto max-w-6xl px-4 sm:px-6 pt-4" role="complementary" aria-label="Advertisement">
+  <div class="mx-auto text-center" style="max-width:728px">
+    <span class="block text-[10px] tracking-[0.18em] uppercase text-slate-400 mb-1.5">Advertisement</span>
+    <div class="flex justify-center overflow-hidden">
+      <div class="origin-top scale-[0.44] sm:scale-100 shrink-0">
+        <script>
+          atOptions = { 'key' : '4e68ac77881c17fe128a46565d9a4e8c', 'format' : 'iframe', 'height' : 90, 'width' : 728, 'params' : {} };
+        </script>
+        <script src="https://www.highrevenueformat.com/4e68ac77881c17fe128a46565d9a4e8c/invoke.js"></script>
+      </div>
+    </div>
+  </div>
+</div>
+
+<main class="mx-auto max-w-6xl px-4 sm:px-6 py-8">
+  <div class="text-center mb-6">
+    <span class="inline-block font-display font-bold text-sm px-4 py-1.5 rounded-full border-2 border-dashed" style="color:#4ade80; border-color:#4ade80;">Unlimited Free Usage &mdash; no sign-up, no paywall</span>
+    <h1 class="font-display text-4xl sm:text-5xl font-extrabold mt-4" style="color:#fbbf24;">The Riddle Generator That<br class="hidden sm:block"> Never Runs Out of Tricks</h1>
+    <p class="mt-3 max-w-2xl mx-auto" style="color:#e9dcc3;">200 original <strong>riddles with answers</strong> — from <strong>funny riddles for kids</strong> to <strong>hard riddles for adults</strong>. Climb the 3-step hint ladder, battle the clock, and keep your daily streak alive.</p>
+  </div>
+
+  <div class="flex justify-center gap-3 mb-8 flex-wrap no-print" role="tablist" aria-label="Riddly modes">
+    <button class="tab-pill active" id="tab-play" role="tab" aria-selected="true">Riddle Cards</button>
+    <button class="tab-pill" id="tab-battle" role="tab" aria-selected="false">Timed Battle</button>
+    <button class="tab-pill" id="tab-daily" role="tab" aria-selected="false">Daily Riddle</button>
+  </div>
+
+  <!-- ============ PLAY MODE ============ -->
+  <section id="mode-play" aria-label="Riddle cards">
+    <div class="flex flex-wrap items-center gap-3 mb-4 no-print">
+      <div id="category-packs" class="flex gap-2 overflow-x-auto pb-1 flex-1 min-w-[200px]" aria-label="Category packs"></div>
+    </div>
+    <div class="flex flex-wrap items-center gap-4 mb-6 no-print">
+      <label class="flex items-center gap-2 font-bold text-sm">
+        <span style="color:#f5ead6;">Difficulty</span>
+        <select id="difficulty-filter" class="field font-bold text-sm">
+          <option value="all">All levels</option>
+          <option value="easy">Easy</option>
+          <option value="medium">Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </label>
+      <label class="flex items-center gap-2 font-bold text-sm cursor-pointer">
+        <span class="switch"><input type="checkbox" id="kids-toggle"><span class="slider"></span></span>
+        <span style="color:#4ade80;">Kids Mode</span>
+      </label>
+      <button id="shuffle-btn" class="ticket-btn green text-sm">Shuffle Deck</button>
+      <span id="deck-count" class="text-xs font-bold" style="color:rgba(245,234,214,.55);"></span>
+    </div>
+
+    <div id="riddle-card" class="riddle-card p-6 sm:p-10 max-w-3xl mx-auto">
+      <div class="flex flex-wrap gap-2 mb-4 relative">
+        <span id="riddle-difficulty" class="badge-diff diff-easy">Easy</span>
+        <span id="riddle-category" class="cat-badge">Everyday Objects</span>
+      </div>
+      <p id="riddle-question" class="font-display text-2xl sm:text-3xl font-bold leading-snug relative" style="color:#fff7e6;"></p>
+      <div id="hint-area" class="mt-5 space-y-2 relative"></div>
+      <div class="mt-6 flex flex-col sm:flex-row gap-3 relative no-print">
+        <input id="answer-input" class="field flex-1" type="text" placeholder="Type your answer..." autocomplete="off" aria-label="Your answer">
+        <button id="check-btn" class="ticket-btn green">Check</button>
+      </div>
+      <p id="feedback" class="mt-3 font-bold min-h-[1.5rem] relative" aria-live="polite"></p>
+      <div id="answer-display" class="hint-stub mt-3 hidden relative" aria-live="polite"></div>
+      <div class="mt-5 flex flex-wrap gap-3 relative no-print">
+        <button id="hint-btn" class="ticket-btn ghost text-sm">Need a hint? (0/3)</button>
+        <button id="answer-btn" class="ticket-btn ghost text-sm">Reveal answer</button>
+        <button id="new-riddle-btn" class="ticket-btn text-sm">New riddle</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ BATTLE MODE ============ -->
+  <section id="mode-battle" class="hidden" aria-label="Timed riddle battle">
+    <div id="battle-mode" class="riddle-card alt p-6 sm:p-10 max-w-3xl mx-auto">
+      <div id="battle-setup" class="relative">
+        <h2 class="font-display text-3xl font-extrabold mb-2" style="color:#fbbf24;">Timed Riddle Battle</h2>
+        <p class="mb-5" style="color:#e9dcc3;">Solve as many riddles as you can before the clock runs out. Fewer hints + faster answers = more points. Streaks multiply the glory.</p>
+        <div class="flex flex-wrap items-center gap-4 no-print">
+          <label class="flex items-center gap-2 font-bold text-sm">
+            <span style="color:#f5ead6;">Round length</span>
+            <select id="battle-time" class="field font-bold text-sm">
+              <option value="30">30 seconds</option>
+              <option value="60" selected>60 seconds</option>
+              <option value="90">90 seconds</option>
+            </select>
+          </label>
+          <button id="battle-start" class="ticket-btn">Start battle</button>
+          <span class="text-sm font-bold" style="color:rgba(245,234,214,.6);">Best score: <span id="battle-best">0</span></span>
+        </div>
+      </div>
+      <div id="battle-arena" class="hidden relative">
+        <div class="flex items-center justify-between mb-2 font-display font-bold">
+          <span style="color:#fbbf24;">Score: <span id="battle-score">0</span></span>
+          <span style="color:#4ade80;">Streak: <span id="battle-streak">0</span></span>
+          <span style="color:#f5ead6;"><span id="battle-timer">60</span>s</span>
+        </div>
+        <div class="timer-track mb-5"><div id="battle-timer-bar" class="timer-fill" style="width:100%"></div></div>
+        <p id="battle-question" class="font-display text-2xl font-bold leading-snug mb-4" style="color:#fff7e6;"></p>
+        <div id="battle-hints" class="space-y-2 mb-4"></div>
+        <div class="flex flex-col sm:flex-row gap-3 no-print">
+          <input id="battle-input" class="field flex-1" type="text" placeholder="Type your answer..." autocomplete="off" aria-label="Battle answer">
+          <button id="battle-submit" class="ticket-btn green">Submit</button>
+          <button id="battle-hint" class="ticket-btn ghost text-sm">Hint</button>
+          <button id="battle-skip" class="ticket-btn ghost text-sm">Skip</button>
+        </div>
+        <p id="battle-feedback" class="mt-3 font-bold min-h-[1.5rem]" aria-live="polite"></p>
+      </div>
+      <div id="battle-end" class="hidden relative text-center py-6">
+        <h3 class="font-display text-3xl font-extrabold mb-2" style="color:#fbbf24;">Time's up!</h3>
+        <p class="font-display text-xl mb-1" style="color:#f5ead6;">Final score: <span id="battle-final" style="color:#4ade80;">0</span></p>
+        <p class="text-sm mb-5 font-bold" style="color:rgba(245,234,214,.6);">Best streak this round: <span id="battle-best-streak">0</span></p>
+        <button id="battle-again" class="ticket-btn">Play again</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DAILY MODE ============ -->
+  <section id="mode-daily" class="hidden" aria-label="Daily riddle">
+    <div class="riddle-card p-6 sm:p-10 max-w-3xl mx-auto">
+      <div class="flex flex-wrap items-center justify-between gap-2 mb-4 relative">
+        <h2 class="font-display text-3xl font-extrabold" style="color:#fbbf24;">Today's Riddle</h2>
+        <span class="font-display font-bold" style="color:#4ade80;">Streak: <span id="daily-streak">0</span> day(s)</span>
+      </div>
+      <p id="daily-riddle" class="font-display text-2xl sm:text-3xl font-bold leading-snug relative" style="color:#fff7e6;"></p>
+      <div id="daily-hints" class="mt-5 space-y-2 relative"></div>
+      <div class="mt-6 flex flex-col sm:flex-row gap-3 relative no-print">
+        <input id="daily-input" class="field flex-1" type="text" placeholder="Type your answer..." autocomplete="off" aria-label="Daily riddle answer">
+        <button id="daily-check-btn" class="ticket-btn green">Check</button>
+        <button id="daily-hint-btn" class="ticket-btn ghost text-sm">Hint (0/3)</button>
+        <button id="daily-answer-btn" class="ticket-btn ghost text-sm">Reveal</button>
+      </div>
+      <p id="daily-feedback" class="mt-3 font-bold min-h-[1.5rem] relative" aria-live="polite"></p>
+      <div id="daily-answer-display" class="hint-stub mt-3 hidden relative"></div>
+      <h3 class="font-display text-xl font-bold mt-8 mb-3 relative" style="color:#fbbf24;">Your streak calendar</h3>
+      <div id="streak-calendar" class="grid grid-cols-10 gap-1.5 relative" aria-label="Last 30 days streak calendar"></div>
+      <p class="text-xs mt-3 font-bold relative" style="color:rgba(245,234,214,.5);">Solve the daily riddle on consecutive days to grow your streak. Saved privately in your browser.</p>
+    </div>
+  </section>
+</main>
+
+<div class="no-print mx-auto max-w-6xl px-4 sm:px-6 pb-4" role="complementary" aria-label="Advertisement">
+  <div class="mx-auto text-center" style="max-width:728px">
+    <span class="block text-[10px] tracking-[0.18em] uppercase text-slate-400 mb-1.5">Advertisement</span>
+    <div class="flex justify-center overflow-hidden">
+      <script async src="https://js.wpadmngr.com/static/adManager.js" data-admpid="464498"></script>
+    </div>
+  </div>
+</div>
+
+<article id="seo-article" class="article-body mx-auto max-w-4xl px-4 sm:px-6 pb-10">
+<h2>The Joy of Riddles with Answers: Why We Cannot Resist a Good Brain Teaser</h2>
+<p>There is a special kind of delight in a great riddle. It starts with a furrowed brow, moves through a storm of wild guesses, and ends with that unmistakable rush — the "aha!" moment when the answer clicks into place. <strong>Riddles with answers</strong> have entertained humans for thousands of years, from the ancient riddle of the Sphinx to the brain teasers swapped in school hallways today. They are tiny stories with a secret, and our brains are wired to hunt secrets down.</p>
+<p>What makes riddles so addictive is that they flatter us and humble us at the same time. A clever riddle makes you feel brilliant when you solve it and wonderfully foolish when you miss it — and both feelings are fun. Psychologists call this the satisfaction of "insight problem solving": the sudden restructuring of information that turns confusion into clarity. That little dopamine hit is the same reason puzzles, escape rooms, and mystery novels are billion-dollar industries. Riddly bottles that feeling into 200 original riddles with answers, each one written to deliver the setup, the struggle, and the satisfying reveal.</p>
+<p>Unlike trivia, which rewards what you already know, riddles reward how you think. A riddle takes something familiar — a clock, a shadow, a bottle — and describes it from an angle you have never considered. Solving one requires you to let go of your first assumption, which is a genuinely useful life skill disguised as play. That is why teachers, parents, and team leaders have used riddles for centuries: they are mental stretching exercises that feel like a game.</p>
+
+<h2>Hard Riddles for Adults: A Workout for Grown-Up Brains</h2>
+<p>Let us be honest: most riddle collections online are written for children, and adults burn through them in minutes. <strong>Hard riddles for adults</strong> are a different species. They do not just ask what has four legs — they exploit the way adult brains take shortcuts. The best hard riddles weaponize your assumptions: you assume "Friday" is a day, "heavy" describes weight, and "three people" means what it says. The riddle quietly relies on that assumption, then pulls the rug out.</p>
+<p>Riddly's Hard difficulty tier and Tricky Logic category pack are built for exactly this audience. These are lateral-thinking puzzles that punish literal reading and reward creative reframing. Research on insight problems consistently shows that stepping away, re-reading the question slowly, and questioning every noun are the most effective strategies — which is precisely what hard riddles train. Adults who regularly tackle difficult riddles report the same benefits as other "desirable difficulty" exercises: better tolerance for ambiguity, faster pattern recognition, and more flexible thinking under pressure.</p>
+<p>The graduated hint ladder is especially valuable for hard riddles for adults. Instead of the binary choice between "stuck forever" and "spoiled answer," you get three escalating nudges. Hint one reframes the question; hint two narrows the field; hint three practically hands you the answer. This scaffolding mirrors how expert problem-solvers actually work — they do not leap to solutions, they narrow the search space step by step. Use the hints strategically: if you are solving with friends, agree that hint one costs nothing but hint three costs bragging rights.</p>
+<p>Hard riddles also make superb social fuel for adults. They are perfect for dinner parties, long drives, pub quizzes, and team-building sessions because they create a level playing field — the CEO and the intern are equally likely to be stumped by a good wordplay riddle. Keep a few of Riddly's hard riddles in your back pocket and you will never endure an awkward silence again.</p>
+
+<h2>Funny Riddles for Kids: Giggles That Build Young Minds</h2>
+<p>On the other end of the spectrum, <strong>funny riddles for kids</strong> are pure joy fuel. Ask a seven-year-old "What do you call a fish with no eyes?" and watch their face cycle through confusion, dawning realization, and explosive laughter when they hear "a fsh!" That laughter is doing serious developmental work. Puns and joke-riddles teach children that words have multiple meanings, that sounds can be rearranged, and that language itself is a playground.</p>
+<p>Educators have long known that funny riddles for kids build phonemic awareness — the ability to hear and manipulate the sounds inside words — which is a cornerstone of reading skill. When a child works out that "nacho cheese" sounds like "not your cheese," they are doing advanced auditory processing without even realizing it. Riddles also build vocabulary in context: a child who solves an onion riddle learns the word "layers" in a way no flashcard can match.</p>
+<p>Riddly's Kids Mode filters the full collection down to 188 kid-safe riddles, and the dedicated Silly Jokes for Kids pack serves up 20 giggle-guaranteed joke riddles — puns, knock-knock-style setups, and silly scenarios with zero scary or grown-up content. Parents can hand the screen to a child with confidence: every hard or tricky-adult riddle is automatically excluded when Kids Mode is on. For classroom use, the category packs double as lesson tie-ins — Animal Kingdom for biology, Food &amp; Kitchen for a cooking unit, Nature &amp; Weather for science class.</p>
+<p>One more underrated benefit: funny riddles for kids are social currency on the playground. The child who knows the best jokes becomes the center of the lunch-table universe. Riddly gives kids an endless supply, and the hint ladder means they can practice telling riddles to family members — reading the hints aloud if they get stuck — building public-speaking confidence one punchline at a time.</p>
+
+<h2>How Riddly's 3-Step Hint Ladder Works</h2>
+<p>Most riddle sites give you two options: suffer or surrender. Riddly's graduated 3-step hint ladder gives you a third path — the guided solve. Every one of the 200 riddles comes with exactly three hints, written in a deliberate gradient from gentle to nearly-giving-it-away.</p>
+<p>Hint 1 is a nudge: it reframes the riddle or points your attention at the right domain without naming anything specific. Hint 2 is a push: it narrows the possibilities dramatically, often naming the category of the answer. Hint 3 is a shove: it describes the answer so closely that most solvers will get it within seconds. The answer itself stays hidden behind a separate "Reveal answer" button, so you are always in control of how much help you take.</p>
+<p>This design is borrowed from how great teachers scaffold difficult problems. Educational research shows that learners persist longer and remember more when help arrives in escalating doses rather than all at once. It also makes riddles more fun in groups: read hint one aloud, let everyone guess, then escalate. The ladder turns a single riddle into a three-round mini game.</p>
+
+<h3>Strategy: Using Hints Without Spoiling the Fun</h3>
+<p>For maximum satisfaction, set a personal rule: always guess at least twice before touching hint one. If you are playing with kids, let them "earn" hints by explaining their current theory first — articulating a wrong guess is itself a thinking skill. In battle mode, remember that every hint costs you 25 points, so the ladder becomes a genuine risk-reward decision: take the hint and secure the solve, or gamble for the full 100 points.</p>
+
+<h2>Timed Riddle Battles: Race the Clock, Build a Streak</h2>
+<p>Solving riddles at your leisure is delightful. Solving them with 60 seconds on the clock is electrifying. Riddly's timed battle mode drops you into an arena where every second counts: pick a 30, 60, or 90-second round, then solve as many riddles as you can before time expires.</p>
+<p>The scoring system rewards both accuracy and courage. A clean solve with no hints earns a base of 100 points plus 2 bonus points for every second remaining — so a lightning-fast answer can be worth far more than a slow one. Each hint you use costs 25 points off the base, creating a constant tactical tension. Consecutive correct answers build a streak, displayed live in the arena; a wrong answer or a skip resets it to zero, so streaks become genuinely precious.</p>
+<p>Battle mode is where Riddly becomes a party game. Pass the phone around and compare scores, or run a tournament bracket with friends — best of three 60-second rounds wins. Your best score is saved on your device, giving you a personal record to chase. Speed-solving riddles also trains a different cognitive muscle than leisurely solving: rapid hypothesis generation, the ability to produce and discard theories in seconds. It is the riddle equivalent of interval training.</p>
+
+<h2>The Daily Riddle Streak: A Tiny Habit with Big Payoff</h2>
+<p>The most powerful feature on Riddly might be the quietest one: the daily riddle. Every day, a new riddle is deterministically selected for you — the same riddle for everyone, everywhere, that day. Solve it to mark the day on your streak calendar and extend your streak. Miss a day, and the streak resets to one.</p>
+<p>Why does this matter? Because streaks are among the most effective habit-forming mechanics ever discovered. The calendar visualization — a grid of your last 30 days, with solved days glowing green — turns an abstract habit into something you can see. Behavioral science calls this "loss aversion": once you have a 12-day streak, skipping day 13 feels like losing something real, so you show up. Duolingo built an empire on this psychology; Riddly applies it to five minutes of daily brain exercise.</p>
+<p>The daily riddle is also a lovely shared ritual. Because everyone gets the same riddle each day, families, classrooms, and group chats can all chew on the same puzzle and compare solving times. Post your streak, challenge a friend, and suddenly a solitary brain teaser becomes a social tradition. Everything is stored privately in your browser's local storage — no account, no tracking, just you versus the calendar.</p>
+
+<h2>Category Packs: 200 Riddles Across Ten Worlds</h2>
+<p>Two hundred riddles is a lot — so Riddly organizes them into ten themed category packs of 20 riddles each, and you can shuffle within any pack for a fresh order every session:</p>
+<ul>
+<li><strong>Everyday Objects</strong> — clocks, shadows, bottles and the secret lives of ordinary things.</li>
+<li><strong>Animal Kingdom</strong> — from penguins in tuxedos to hyenas that laugh at night.</li>
+<li><strong>Food &amp; Kitchen</strong> — deliciously solvable, best enjoyed with snacks nearby.</li>
+<li><strong>Nature &amp; Weather</strong> — rainbows, volcanoes, mirages and mountain moods.</li>
+<li><strong>Wordplay &amp; Letters</strong> — the linguist's playground; includes several genuinely hard riddles for adults.</li>
+<li><strong>Body &amp; Senses</strong> — you are the answer more often than you would expect.</li>
+<li><strong>Around the House</strong> — a scavenger hunt through your own rooms.</li>
+<li><strong>Silly Jokes for Kids</strong> — 20 funny riddles for kids, heavy on puns and giggles.</li>
+<li><strong>Tricky Logic</strong> — lateral-thinking stumpers that humble grown-ups.</li>
+<li><strong>Night &amp; Mystery</strong> — owls, moonlight, shadows and things that go hoot.</li>
+</ul>
+<p>Each pack can be combined with the difficulty filter and Kids Mode, so "Easy + Animals + Kids Mode" becomes an instant child-friendly game, while "Hard + Tricky Logic" becomes a gauntlet for adults. The shuffle button re-deals the deck whenever you want a new order — with 200 riddles and 10 packs, repetition is effectively impossible.</p>
+
+<h2>How to Solve Riddles Like a Pro: 7 Field-Tested Tips</h2>
+<p>Want to get dramatically better at riddles with answers? These seven techniques are what experienced solvers actually do:</p>
+<ul>
+<li><strong>Read it twice, slowly.</strong> Most failed solves come from skimming. The second read reveals the words you glossed over.</li>
+<li><strong>Question every noun.</strong> When a riddle says "Friday," ask whether it means the day. When it says "heavy," ask whether it means weight. Riddles hide in assumptions.</li>
+<li><strong>Think in categories, not specifics.</strong> "I have a face but no eyes" — list everything with a face: clocks, cards, coins. Then test each against the next clue.</li>
+<li><strong>Say it out loud.</strong> Wordplay riddles especially reveal themselves in speech — "a fsh" is invisible on paper and obvious aloud.</li>
+<li><strong>Work backwards from the answer shape.</strong> If the riddle asks "what am I," the answer is usually a common noun, not a exotic one. Bet on the ordinary.</li>
+<li><strong>Use hint one early, hint three late.</strong> A single nudge often unblocks you; saving the ladder for when you are truly stuck preserves the challenge.</li>
+<li><strong>Sleep on the hard ones.</strong> Insight research shows that stepping away lets your unconscious keep working. Come back to Riddly's hard riddles for adults tomorrow — the answer may arrive in the shower.</li>
+</ul>
+
+<h2>Riddles for Parties, Classrooms, and Family Game Night</h2>
+<p>Riddly is secretly a party game in a riddle generator's clothing. For parties, project battle mode onto a TV and run a tournament — the timer bar and live streak counter make fantastic spectator sport. For classrooms, Kids Mode plus the Animals or Nature packs gives teachers a zero-prep warm-up activity that builds vocabulary and critical thinking in five minutes. For family game night, the daily riddle is a perfect opener: everyone gets the same puzzle, youngest to oldest, and the hint ladder keeps it fair across ages.</p>
+<p>Road trips deserve a special mention. Riddles are the ideal car game — no equipment, no batteries, infinitely replayable — and Riddly's category packs mean the driver can call out "give me a hard one from Tricky Logic" while a passenger reads from the screen. Two hundred original riddles will outlast even the longest drive.</p>
+
+<h2>Why Riddly Is Different</h2>
+<p>Most riddle sites are walls of copied text with answers awkwardly hidden behind spoiler tags. Riddly was built as an experience: 200 original riddles written fresh (not scraped from riddle databases), a graduated hint ladder on every single one, difficulty tiers that actually mean something, a Kids Mode parents can trust, timed battles with real scoring, and a daily streak calendar that turns brain exercise into a habit. It is free, unlimited, and requires no sign-up — just you, a riddle, and that beautiful moment when everything clicks.</p>
+</article>
+
+<section class="mx-auto max-w-4xl px-4 sm:px-6 pb-12" aria-label="Frequently asked questions">
+<h2 class="font-display text-3xl font-extrabold mb-5 text-center" style="color:#fbbf24;">Riddle FAQs</h2>
+<div class="space-y-3">
+<details class="faq">
+<summary>Where can I find good riddles with answers?</summary>
+<p class="mt-2" style="color:#e9dcc3; line-height:1.7;">Right here. Riddly includes 200 original riddles with answers built in — no sign-up, no paywall. Every riddle ships with a 3-step hint ladder and a revealable answer, organized into ten category packs ranging from silly jokes to tricky logic puzzles. Use the category chips, difficulty filter, or Kids Mode to find exactly the kind of riddle you are in the mood for.</p>
+</details>
+<details class="faq">
+<summary>Does Riddly have hard riddles for adults?</summary>
+<p class="mt-2" style="color:#e9dcc3; line-height:1.7;">Yes. Choose "Hard" in the difficulty filter or open the Tricky Logic category pack for hard riddles for adults — lateral-thinking puzzles, wordplay stumpers, and assumption-busting brain teasers designed to challenge grown-up brains. The hint ladder lets you take graduated help instead of either suffering or spoiling the answer.</p>
+</details>
+<details class="faq">
+<summary>Are there funny riddles for kids on Riddly?</summary>
+<p class="mt-2" style="color:#e9dcc3; line-height:1.7;">Absolutely. Switch on Kids Mode to filter the collection to 188 kid-safe riddles, and open the Silly Jokes for Kids pack for 20 funny riddles for kids full of puns and giggles. All hard and grown-up-tricky content is automatically excluded in Kids Mode, so parents and teachers can hand over the screen with confidence.</p>
+</details>
+<details class="faq">
+<summary>How does the 3-step hint ladder work?</summary>
+<p class="mt-2" style="color:#e9dcc3; line-height:1.7;">Each riddle has three graduated hints. Hint 1 is a gentle nudge that reframes the question, Hint 2 is a stronger clue that narrows the field, and Hint 3 nearly gives the game away. Reveal them one at a time with the "Need a hint?" button. The answer stays hidden until you press "Reveal answer," so you always control how much help you take.</p>
+</details>
+<details class="faq">
+<summary>How does the timed riddle battle mode work?</summary>
+<p class="mt-2" style="color:#e9dcc3; line-height:1.7;">Pick a 30, 60, or 90-second round and solve as many riddles as you can before time runs out. A clean solve earns 100 points plus 2 bonus points per second remaining; each hint used costs 25 points. Consecutive correct answers build a streak — a wrong answer or skip resets it. Your best score is saved on your device.</p>
+</details>
+<details class="faq">
+<summary>How does the daily riddle streak calendar work?</summary>
+<p class="mt-2" style="color:#e9dcc3; line-height:1.7;">Every day Riddly picks one riddle for everyone. Solve it to mark the day green on your 30-day streak calendar and grow your streak — solve on consecutive days to keep it alive. Your streak and calendar are stored privately in your browser's local storage; no account needed.</p>
+</details>
+</div>
+</section>
+
+<footer class="border-t-2 border-dashed py-6 text-center text-sm font-bold" style="border-color:rgba(251,191,36,.25); color:rgba(245,234,214,.55);">
+  <p class="font-display text-lg" style="color:#fbbf24;">Riddly?</p>
+  <p class="mt-1">200 original riddles &middot; free forever &middot; no sign-up</p>
+</footer>
+
+<script id="v3-riddly-riddle-generator-lib">
+/* Riddly riddle-generator core logic — PURE functions only.
+   No document/window access. Dataset: 200 original riddles.
+   Entry format: [question, answer, [hint1, hint2, hint3], difficulty, kidsSafe(1/0), category, [altAnswers]] */
+
+var RIDDLY_CATEGORIES = [
+  ["everyday", "Everyday Objects"],
+  ["animals", "Animal Kingdom"],
+  ["food", "Food & Kitchen"],
+  ["nature", "Nature & Weather"],
+  ["wordplay", "Wordplay & Letters"],
+  ["body", "Body & Senses"],
+  ["home", "Around the House"],
+  ["kids", "Silly Jokes for Kids"],
+  ["tricky", "Tricky Logic"],
+  ["mystery", "Night & Mystery"]
+];
+
+var RIDDLY_RAW = [
+/* ---- everyday (20) ---- */
+["I have a face but no eyes, hands but no arms. I tell you when to hurry and I ring alarms.","A clock",["You glance at me a dozen times a day","My hands spin in circles but never grab","Tick-tock — I hang on your wall"],"easy",1,"everyday",["clock"]],
+["The more of me you take, the more you leave behind. What am I?","Footsteps",["Think of walking on a sandy beach","Each one marks exactly where you have been","They follow right behind your feet"],"medium",1,"everyday",["footsteps","footprints"]],
+["I only go up and never come down.","Your age",["I grow with every birthday","No one has ever reversed me","Candles on a cake keep count of me"],"easy",1,"everyday",["age","your age"]],
+["I have a neck but no head, and I always wear a cap.","A bottle",["You twist my cap off to drink","I hold your water or juice","I am made of glass or plastic and I pour"],"easy",1,"everyday",["bottle"]],
+["What gets wetter the more it dries?","A towel",["You reach for me after a shower","I soak up all the water","Hang me up when I am damp"],"easy",1,"everyday",["towel"]],
+["I have branches all over town but not a single leaf.","A bank",["Money lives inside me","You visit my branches to deposit cash","My ATMs spit out cash on the corner"],"medium",1,"everyday",["bank"]],
+["I run on tracks but have no legs, and I whistle but have no lips.","A train",["I carry passengers in long cars","Follow my rails to the station","Choo-choo!"],"easy",1,"everyday",["train"]],
+["You throw away my outside and cook my inside. Then you eat my outside and throw away my inside.","Corn on the cob",["I grow tall in summer fields","You peel my green husk first","Buttery yellow kernels in a row"],"medium",1,"everyday",["corn","corn on the cob"]],
+["I am full of holes, yet I still hold water.","A sponge",["I live beside your kitchen sink","Squeeze me and I drip","I scrub your dishes clean"],"easy",1,"everyday",["sponge"]],
+["My bottom is at my top. What body part am I?","Legs",["You have two of me","I help you walk and run","My 'bottom' is where I meet your hips"],"medium",1,"everyday",["legs","your legs"]],
+["I get smaller every time I take a bath.","A bar of soap",["I am slippery when wet","I make lots of bubbles","You rub me on your hands"],"easy",1,"everyday",["soap","bar of soap"]],
+["What comes once in a minute, twice in a moment, but never in a thousand years?","The letter M",["Look at the spelling, not the meaning","Count me inside the word 'moment'","M-inute, M-o-M-ent"],"medium",1,"everyday",["m","letter m"]],
+["I have a head and a tail but no body at all.","A coin",["You flip me to make decisions","I am round and jingly","Heads or tails?"],"easy",1,"everyday",["coin"]],
+["I belong to you, but other people use me more than you do.","Your name",["People call you by me","Teachers say me during roll call","Your friends shout me across the playground"],"easy",1,"everyday",["name","your name"]],
+["I fly without wings and cry without eyes.","A cloud",["I drift slowly across the sky","My tears water the gardens","Rain falls out of me"],"medium",1,"everyday",["cloud"]],
+["The person who makes me does not need me. The person who buys me does not use me. The person who uses me never knows.","A coffin",["I am made of wood","You only need me once, at the very end","A solemn box for a final rest"],"hard",0,"everyday",["coffin"]],
+["I have cities but no houses, forests but no trees, and rivers but no water.","A map",["I fold up small enough for a pocket","Travelers study me before trips","I am printed with countries and roads"],"medium",1,"everyday",["map"]],
+["What can you catch but never throw?","A cold",["You get me most in winter","I make you sneeze and sniffle","Catch me and you will need tissues"],"easy",1,"everyday",["cold"]],
+["I am always hungry and must always be fed. Touch me and you will soon turn red.","Fire",["I dance inside the fireplace","I eat wood and paper","Never touch me — I burn"],"medium",1,"everyday",["fire"]],
+["What has many teeth but cannot bite?","A comb",["I live in your bathroom drawer","I tame messy morning hair","My teeth stand in a straight row"],"easy",1,"everyday",["comb"]],
+/* ---- animals (20) ---- */
+["I wear a tuxedo all year round but never go to a party.","A penguin",["I waddle instead of walking","I live where it is icy cold","I cannot fly, but I swim brilliantly"],"easy",1,"animals",["penguin"]],
+["I hop around with my baby riding in my pocket.","A kangaroo",["I live in Australia","My powerful legs jump far","My baby is called a joey"],"easy",1,"animals",["kangaroo"]],
+["I sleep hanging upside down and I see with my ears.","A bat",["I come out after dark","I rest inside caves","I use echoes to find my way"],"easy",1,"animals",["bat"]],
+["I carry my whole house wherever I go.","A snail",["I am famously slow","I leave a shiny trail","Gardeners spot me after rain"],"easy",1,"animals",["snail"]],
+["I have a long trunk but I am not a tree.","An elephant",["I have big floppy ears","I never forget, they say","I spray water with my nose"],"easy",1,"animals",["elephant"]],
+["I change my coat with the seasons but never visit a tailor.","A fox",["I am a clever woodland animal","People say I am sly","My big bushy tail is famous"],"easy",1,"animals",["fox"]],
+["I quack my jokes but I never laugh.","A duck",["I waddle on two webbed feet","I love ponds and lakes","Quack, quack!"],"easy",1,"animals",["duck"]],
+["I have eight arms but not a single hand.","An octopus",["I live deep in the ocean","I squirt ink when scared","I am a master of disguise"],"easy",1,"animals",["octopus"]],
+["I run faster than anyone but I am always spotted.","A cheetah",["I am a big cat","My coat is covered in dots","I am the fastest land animal"],"easy",1,"animals",["cheetah"]],
+["I build dams but I am not a construction worker.","A beaver",["I have big flat teeth","I chew straight through trees","I live in rivers and ponds"],"medium",1,"animals",["beaver"]],
+["I glow in the dark garden without any lamp.","A firefly",["I am a tiny beetle","Summer nights sparkle because of me","My tail blinks on and off"],"easy",1,"animals",["firefly","lightning bug"]],
+["I eat with my nose and never use a fork.","An anteater",["I love tiny crawling insects","My tongue is super long","I snack at ant hills"],"medium",1,"animals",["anteater"]],
+["I wear stripes to work every day — a walking barcode.","A zebra",["I look like a striped horse","I roam the African grasslands","Black and white all over"],"easy",1,"animals",["zebra"]],
+["I take the world's longest naps, sleeping through winter entirely.","A hibernating bear",["I am big and furry","I snooze all winter long","I love honey and salmon"],"medium",1,"animals",["bear","hibernating bear"]],
+["I laugh all night but nothing is funny.","A hyena",["I live on the African plains","My call sounds just like giggling","I roam with my pack"],"medium",1,"animals",["hyena"]],
+["I shop with my beak and store my lunch in my throat.","A pelican",["I am a big water bird","I dive down for fish","My beak has a stretchy pouch"],"medium",1,"animals",["pelican"]],
+["I never blink because I have no eyelids.","A fish",["I live underwater","I breathe through gills","I swim in schools"],"easy",1,"animals",["fish"]],
+["I wrap myself in a blanket, take a long nap, and wake up with wings.","A butterfly",["I start life as a caterpillar","I rest inside a chrysalis","My wings are brightly colored"],"easy",1,"animals",["butterfly"]],
+["I bark but I am not a dog, and I swim but I am not a fish.","A seal",["I clap with my flippers","I balance balls at shows","I love the chilly ocean"],"medium",1,"animals",["seal"]],
+["I am called the king of the jungle but I do no ruling.","A lion",["I have a magnificent mane","My roar shakes the plains","I nap most of the day"],"easy",1,"animals",["lion"]],
+/* ---- food (20) ---- */
+["I am yellow and curved, and monkeys cannot resist me.","A banana",["I come in a peel-off jacket","I grow in big bunches","A monkey's favorite snack"],"easy",1,"food",["banana"]],
+["I have many eyes but I never blink.","A potato",["I grow underground","Crispy fries are made from me","My 'eyes' sprout in the pantry"],"easy",1,"food",["potato"]],
+["Peel my layers and I will make you cry — but I am not sad.","An onion",["I make your eyes water","I flavor soups and stews","I wear papery skin"],"easy",1,"food",["onion"]],
+["I am red and round, and I ketchup with everything.","A tomato",["Some call me a vegetable, but I am a fruit","I star in pasta sauce","Say 'ketchup' out loud!"],"easy",1,"food",["tomato"]],
+["I am full of holes but delicious on pizza.","Swiss cheese",["Mice love me in cartoons","I am made from milk","Say cheese!"],"easy",1,"food",["swiss cheese","cheese"]],
+["I go into the toaster pale and come out golden.","Bread",["I am baked from dough","Sandwiches need me","Toast me for breakfast"],"easy",1,"food",["bread","toast"]],
+["I am cold and sweet, and I melt if you wait too long.","Ice cream",["I come in scoops","I drip down the cone","Keep me in the freezer"],"easy",1,"food",["ice cream","icecream"]],
+["I have a crunchy coat and a soft heart, and I grow on a tall stalk.","Corn",["Pop me for movie night","My kernels are sunny yellow","Eat me on the cob"],"easy",1,"food",["corn"]],
+["I am a fruit that wears a crown.","A pineapple",["I am spiky outside, sweet inside","I grow in warm places","My leafy top looks like a crown"],"easy",1,"food",["pineapple"]],
+["I am white and powdery; cakes cannot exist without me.","Flour",["I am milled from wheat","Bakers use me every day","Mix me with water to make dough"],"medium",1,"food",["flour"]],
+["I crack under pressure and my inside becomes breakfast.","An egg",["Hens lay me","Scramble me or fry me","I come in a fragile shell"],"easy",1,"food",["egg"]],
+["I am green outside, red inside, and full of black polka dots.","A watermelon",["I am a giant summer fruit","My juice drips down chins","Spit out my seeds!"],"easy",1,"food",["watermelon"]],
+["I drip golden, and bees are my factory.","Honey",["Bees make me in hives","I sweeten your tea","I never ever spoil"],"easy",1,"food",["honey"]],
+["I am baked into a knot and sprinkled with salt.","A pretzel",["I am a twisted snack","You find me at fairs and games","Dip me in mustard"],"medium",1,"food",["pretzel"]],
+["I melt in your mouth but I am made from beans.","Chocolate",["I am brown and sweet","I come in bars and chips","I am made from cacao beans"],"easy",1,"food",["chocolate"]],
+["I am a berry that is blue, but I am not feeling sad.","A blueberry",["I am tiny and round","I top pancakes and cereal","Bakers fold me into muffins"],"easy",1,"food",["blueberry","blueberries"]],
+["I have a pit in my belly and fuzzy skin.","A peach",["I am a juicy summer fruit","My skin feels like velvet","I am sweet down to the stone"],"easy",1,"food",["peach"]],
+["I am long and orange, and rabbits write fan mail to me.","A carrot",["I crunch when you bite","I grow underground","They say I help you see in the dark"],"easy",1,"food",["carrot"]],
+["I pop when heated and I am the star of movie night.","Popcorn",["I start as hard kernels","I explode in the hot pan","Salt me and pass the bowl"],"easy",1,"food",["popcorn"]],
+["I am sour and yellow, and life gives me to make lemonade.","A lemon",["I make your face pucker","I flavor drinks and fish","Squeeze me over it"],"easy",1,"food",["lemon"]],
+/* ---- nature (20) ---- */
+["I fall from winter clouds and vanish on your tongue.","A snowflake",["I am a tiny ice crystal","No two of me are alike","Catch me on your mitten"],"easy",1,"nature",["snowflake","snow"]],
+["I have a bed but never sleep, and a mouth but never eat.","A river",["I flow down to the sea","Fish live inside me","My 'bed' is my rocky bottom"],"medium",1,"nature",["river"]],
+["I am tall when I am young and short when I am old.","A candle",["I melt as I age","Birthdays need me","Blow me out and make a wish"],"easy",1,"nature",["candle"]],
+["I follow you all day long but vanish every night.","Your shadow",["The sun creates me","I copy your every move","I disappear in the dark"],"easy",1,"nature",["shadow","your shadow"]],
+["I paint the sky at dawn but I own no brush.","The sunrise",["I wake the roosters","I rise in the east","I am morning's first light"],"easy",1,"nature",["sunrise"]],
+["I zigzag across the sky and arrive with a mighty boom.","Lightning",["I flash during storms","Thunder follows right behind me","Never stand under a tree near me"],"medium",1,"nature",["lightning","thunderstorm"]],
+["I am a bridge of colors that you can never cross.","A rainbow",["I appear after the rain","I arc across the sky","Count my seven colors"],"easy",1,"nature",["rainbow"]],
+["I dance in the desert but I am not alive.","A mirage",["Thirsty travelers see water in me","Heat and light create me","I am a trick of the eyes"],"hard",0,"nature",["mirage"]],
+["I cover the ground in white but I am not snow, and I vanish by breakfast.","Frost",["I appear on cold mornings","I sparkle on windows","The morning sun melts me away"],"medium",1,"nature",["frost"]],
+["I drink through my roots and breathe through my leaves.","A tree",["Birds nest in my branches","I give cool shade","I start life as a tiny seed"],"easy",1,"nature",["tree"]],
+["I howl without a mouth and push ships without hands.","The wind",["You feel me but cannot see me","I spin the windmills","Kites need me to fly"],"easy",1,"nature",["wind"]],
+["I am a giant wave born from a shake deep below.","A tsunami",["An undersea earthquake makes me","I am a huge, powerful sea wave","Coastal sirens warn of me"],"hard",0,"nature",["tsunami"]],
+["I wear white in winter and green in summer, and I never change clothes myself.","A mountain",["Climbers scale my sides","Snow caps my peak","I am tall and rocky"],"medium",1,"nature",["mountain"]],
+["I open in the morning and close at night, but I am not a shop.","A flower",["Bees visit me daily","I bloom in spring","I show off my petals"],"easy",1,"nature",["flower"]],
+["I am a fire that never burns out — I rise every morning.","The sun",["I light up the whole sky","Plants reach for me","I set in the west"],"easy",1,"nature",["sun"]],
+["I light the night path but I am only a rock.","The moon",["I orbit the Earth","I change shape every month","Ocean tides follow me"],"easy",1,"nature",["moon"]],
+["I eat rocks and spit out brand-new islands.","A volcano",["I am a fiery mountain","Hot lava flows from me","When I erupt, run!"],"medium",1,"nature",["volcano"]],
+["I fall in autumn and crunch under your feet.","Leaves",["Trees shed me yearly","I turn red and gold","Rake me into big piles"],"easy",1,"nature",["leaves","leaf"]],
+["I am a blanket of stars that you can never touch.","The night sky",["I appear after sunset","Constellations live in me","I vanish at dawn"],"easy",1,"nature",["night sky"]],
+["I spin in the sky and touch the ground with a roar.","A tornado",["I am a twisting funnel","Storm chasers follow me","Take shelter when I come"],"medium",0,"nature",["tornado"]],
+/* ---- wordplay (20) ---- */
+["What word becomes shorter when you add two letters to it?","Short",["Think about the word itself, not its meaning","Add the letters E and R","'Short' plus 'er' equals 'shorter'"],"medium",1,"wordplay",["short"]],
+["I am a word with three letters. Add two letters and I become fewer.","Few",["I rhyme with 'new'","Add E and R to me","'Few' plus 'er' equals 'fewer'"],"medium",1,"wordplay",["few"]],
+["What starts with T, ends with T, and is full of T?","A teapot",["It starts with the letter T","It ends with the letter T","It is full of tea — T!"],"easy",1,"wordplay",["teapot"]],
+["What has one eye but cannot see?","A needle",["Tailors use me","Thread passes through my eye","I am sharp and thin"],"easy",1,"wordplay",["needle"]],
+["Forward I am heavy, but backward I am not.","Ton",["Read me in reverse","I weigh a lot going forward","'Ton' backwards spells 'not'"],"hard",0,"wordplay",["ton"]],
+["What word is spelled incorrectly in every dictionary?","Incorrectly",["Read the question very carefully","Which word means 'not spelled right'?","The word 'incorrectly' itself!"],"medium",1,"wordplay",["incorrectly"]],
+["What goes up and down but never moves?","Stairs",["You climb me every day","I connect the floors","Step by step!"],"easy",1,"wordplay",["stairs","staircase"]],
+["The more there is of me, the less you see.","Darkness",["I fill a room with no lights","I make everything invisible","Turn off the lamp to find me"],"medium",1,"wordplay",["darkness","dark"]],
+["What can fill a room but takes up no space?","Light",["Flip a switch to summon me","I chase the darkness away","I travel all the way from the sun"],"medium",1,"wordplay",["light"]],
+["What English word has three consecutive double letters?","Bookkeeper",["It is a job title","Look for 'oo', 'kk', 'ee' in a row","Someone who keeps the books"],"hard",0,"wordplay",["bookkeeper"]],
+["What begins with E, ends with E, but contains only one letter?","An envelope",["Mail travels inside me","I begin and end with the letter E","I contain exactly one letter — mail!"],"medium",1,"wordplay",["envelope"]],
+["What has a head and a tail, is brown, and has no legs?","A penny",["I am worth one cent","I am copper-colored","Heads or tails?"],"easy",1,"wordplay",["penny","cent"]],
+["What can you hold in your right hand but never in your left?","Your left hand",["It is part of your body","Try grabbing it with your left hand","Gotcha — it is your left hand!"],"medium",1,"wordplay",["left hand","your left hand"]],
+["What loses its head in the morning and gets it back at night?","A pillow",["You rest your head on me","Each morning your head leaves me","Each night it comes back"],"medium",1,"wordplay",["pillow"]],
+["What has four wheels and flies?","A garbage truck",["It rumbles down your street weekly","It collects all the bins","'Flies' — insects swarm around it!"],"medium",1,"wordplay",["garbage truck","trash truck"]],
+["What runs around the yard without ever moving?","A fence",["I border the garden","I 'run' along the property line","Wooden posts in a row"],"easy",1,"wordplay",["fence"]],
+["What invention lets you look right through a wall?","A window",["I am made of glass","You open me for fresh air","I sit inside the wall"],"easy",1,"wordplay",["window"]],
+["What has many keys but cannot open a single door?","A keyboard",["You type on me all day","I have letters and numbers","I connect to your computer"],"easy",1,"wordplay",["keyboard"]],
+["What gets bigger the more you take away from it?","A hole",["Dig me in the sand","The more dirt you remove...","...the bigger I get!"],"easy",1,"wordplay",["hole"]],
+["What is always in front of you but can never be seen?","The future",["It is not the air","Tomorrow lives there","You walk toward it every day"],"medium",1,"wordplay",["future","the future"]],
+/* ---- body (20) ---- */
+["I have 206 of me, and I hold your whole body up.","Bones",["I am hard and white","X-rays show me clearly","Together I am your skeleton"],"easy",1,"body",["bones","skeleton"]],
+["I beat without a drum and I never stop until the very end.","Your heart",["I am in your chest","I speed up when you run","Lub-dub, lub-dub!"],"easy",1,"body",["heart","your heart"]],
+["I am called the window to your soul, but sometimes I need glasses.","Eyes",["I blink all day","I cry when you are sad","I help you see"],"easy",1,"body",["eyes"]],
+["I am dead tissue that keeps growing from your head.","Hair",["You comb me daily","Barbers trim me","I grow from your scalp"],"easy",1,"body",["hair"]],
+["I taste everything but I never eat a bite.","Your tongue",["I am in your mouth","I love sweet and salty","I help you talk"],"easy",1,"body",["tongue","your tongue"]],
+["I carry sound but I am shaped like a shell.","Your ear",["I stick out on both sides","I hear all the music","I look like a tiny seashell"],"easy",1,"body",["ear","your ear","ears"]],
+["I have 32 white soldiers standing in a pink cave.","Teeth",["I chew all your food","Dentists check me twice a year","Brush me twice a day!"],"easy",1,"body",["teeth","tooth"]],
+["I am red rivers flowing just under your skin.","Blood",["I flow through veins","I am bright red","Your heart pumps me"],"easy",1,"body",["blood"]],
+["I let you bend your arm, but I am not a hinge.","Your elbow",["I am in the middle of your arm","Your funny bone lives here","I bend!"],"easy",1,"body",["elbow","your elbow"]],
+["I am the biggest organ you own, and I keep you all wrapped up.","Skin",["I cover your whole body","I feel every touch","Sunburn hurts me"],"medium",1,"body",["skin"]],
+["I filter the air but I am not a machine.","Your nose",["I smell fresh cookies","I sneeze when tickled","I sit in the middle of your face"],"easy",1,"body",["nose","your nose"]],
+["I have five little friends on each hand.","Fingers",["I help you grip","I type and point","Count me: five per hand"],"easy",1,"body",["fingers"]],
+["I am a drum that only you can hear, playing inside your chest.","Your heartbeat",["Doctors listen to me","I race when you run","Lub-dub!"],"easy",1,"body",["heartbeat","your heartbeat"]],
+["I am a curtain that protects your eyes.","Eyelids",["I close when you sleep","I blink all day","I keep the dust out"],"easy",1,"body",["eyelids","eyelid"]],
+["I pop up when you are scared or cold, and I stand up straight.","Goosebumps",["Cold air gives me to you","I cover your arms","I am tiny little bumps"],"medium",1,"body",["goosebumps","goose bumps"]],
+["I am a wrinkly maze inside your head where memories live.","Your brain",["I do all your thinking","I am pink and wrinkly","I control everything you do"],"easy",1,"body",["brain","your brain"]],
+["I flutter in your tummy before a big test.","Butterflies",["Nerves give me wings","I live in your stomach","I appear when you are excited"],"medium",1,"body",["butterflies","butterflies in your stomach"]],
+["I am your body's shock absorber, with 26 bones in each of me.","Feet",["I wear shoes all day","I have ten toes total","I walk you everywhere"],"easy",1,"body",["feet","foot"]],
+["I turn your lunch into fuel while you sleep.","Your stomach",["I growl when you are hungry","I live in your belly","I churn your food"],"easy",1,"body",["stomach","your stomach"]],
+["I am contagious, I appear when you are bored, and I stretch your mouth wide.","A yawn",["Tired people do me","Seeing me makes you do me too","Open wide!"],"easy",1,"body",["yawn"]],
+/* ---- home (20) ---- */
+["I have a door but no house, and I keep everything cold.","A refrigerator",["I hum in your kitchen","Milk and eggs live in me","I keep food fresh"],"easy",1,"home",["refrigerator","fridge"]],
+["I spin your clothes around but I am not a dancer.","A washing machine",["I fill with soapy water","I spin really fast","I clean your laundry"],"easy",1,"home",["washing machine","washer"]],
+["I eat dust and hum while I work.","A vacuum cleaner",["I suck up all the dirt","I roar across carpets","Empty my bag when I am full"],"easy",1,"home",["vacuum cleaner","vacuum"]],
+["I have buttons but no shirt, and I change the channels.","A remote control",["I boss the TV around","I get lost in couch cushions","Point me and click"],"easy",1,"home",["remote control","remote"]],
+["I glow all night to keep the monsters away.","A nightlight",["I plug into the wall","Kids sleep better with me","I chase the dark away"],"easy",1,"home",["nightlight","night light"]],
+["I hold all your books but I never read a word.","A bookshelf",["I stand against the wall","I have many shelves","Dust me sometimes"],"easy",1,"home",["bookshelf","bookcase"]],
+["I have four legs but I never walk; you rest your dinner on me.","A table",["I stand in the dining room","Plates sit on me","I have four sturdy legs"],"easy",1,"home",["table"]],
+["I go up and down but I am not an elevator; I cover your window.","Blinds",["I block the sunlight","I have thin slats","Pull my cord"],"medium",1,"home",["blinds","window blinds"]],
+["I am a box that shows you a hundred different worlds.","A television",["I glow in the living room","Shows and movies play on me","Grab the remote!"],"easy",1,"home",["television","tv"]],
+["I ring but I am not a phone; guests love to press me.","A doorbell",["I sing at your front door","Visitors announce themselves with me","Ding-dong!"],"easy",1,"home",["doorbell"]],
+["I have a handle but I am not a bag; you turn me to enter.","A doorknob",["I guard every door","Twist me to come inside","I am round and shiny"],"easy",1,"home",["doorknob","door knob","door handle"]],
+["I swallow letters and wait patiently by the street.","A mailbox",["The postman visits me","I hold your letters","Raise my red flag"],"easy",1,"home",["mailbox","letterbox"]],
+["I am flat and hot, and I make wrinkled shirts crisp.","An iron",["I press your clothes","I puff out steam","Never touch my hot face"],"medium",1,"home",["iron"]],
+["I tickle your feet every single morning.","A carpet",["I cover the floor","I am soft and fuzzy","Vacuum me clean"],"easy",1,"home",["carpet","rug"]],
+["I hold water but I am not a cup; you wash your face in me.","A sink",["I live in the bathroom","Turn my taps","I drain away"],"easy",1,"home",["sink"]],
+["I show you the month and I hang upon your wall.","A calendar",["I have twelve pages","I mark the holidays","Flip me each month"],"easy",1,"home",["calendar"]],
+["I am a tiny sun that screws into your ceiling.","A light bulb",["I glow when switched on","I screw into the socket","I chase away the dark"],"easy",1,"home",["light bulb","lightbulb","bulb"]],
+["I have teeth that bite your key every single night.","A lock",["I guard your front door","Keys turn inside me","Click — you are safe"],"easy",1,"home",["lock"]],
+["I whistle loudly when the water is ready.","A kettle",["I boil water fast","I sit upon the stove","Steam sings from my spout"],"easy",1,"home",["kettle"]],
+["I am a soft rectangle where all your dreams begin.","A pillow",["I live upon your bed","You hug me at night","Rest your head on me"],"easy",1,"home",["pillow"]],
+/* ---- kids silly (20) ---- */
+["What do you call a fish with no eyes?","A fsh",["Say the word 'fish' out loud","Now take away the letter I","F-sh!"],"easy",1,"kids",["fsh"]],
+["Why did the cookie go to the doctor?","Because it felt crumby",["Cookies fall into crumbs","'Crummy' means feeling sick","Crumby — full of crumbs!"],"easy",1,"kids",["because it felt crumby","it felt crumby","crumby"]],
+["What do you call cheese that is not yours?","Nacho cheese",["Say it really fast","'Not your' sounds like...","Nacho!"],"easy",1,"kids",["nacho cheese","nacho"]],
+["Why can your nose never be 12 inches long?","Because then it would be a foot",["12 inches equals...","Another word for 12 inches","A foot!"],"easy",1,"kids",["because then it would be a foot","it would be a foot"]],
+["What room has no doors at all?","A mushroom",["It grows in the forest","Say 'mush-room' slowly","Mushroom!"],"easy",1,"kids",["mushroom"]],
+["Why did the math book look so sad?","It had too many problems",["Math books are full of...","Lots and lots of...","Problems!"],"easy",1,"kids",["it had too many problems","too many problems"]],
+["What do you call a sleeping bull?","A bulldozer",["Think 'bull' plus 'dozer'","'Dozer' sounds like dozing","Dozing means sleeping!"],"easy",1,"kids",["bulldozer"]],
+["Why do bees have sticky hair?","Because they use honeycombs",["Bees make sweet honey","What do you comb hair with?","Honey-comb!"],"easy",1,"kids",["because they use honeycombs","they use honeycombs","honeycombs"]],
+["What did one wall say to the other wall?","I'll meet you at the corner",["Two walls meet somewhere","Where do two walls join?","At the corner!"],"easy",1,"kids",["i'll meet you at the corner","meet you at the corner"]],
+["Why did the bicycle fall over?","Because it was two-tired",["Bikes have two of them","'Too tired' versus 'two-tired'","Two tires!"],"easy",1,"kids",["because it was two-tired","it was two-tired","two-tired"]],
+["What do you call a bear with no teeth?","A gummy bear",["It is a chewy candy","'Gummy' means no teeth needed","Gummy bear!"],"easy",1,"kids",["gummy bear"]],
+["Why don't skeletons ever fight each other?","They don't have the guts",["Skeletons are only bones","'Guts' means courage...","...and insides, which they lack!"],"easy",1,"kids",["they don't have the guts","don't have the guts","no guts"]],
+["What did the zero say to the eight?","Nice belt!",["Look closely at the number 8","It has something in the middle","Like a belt around its waist!"],"easy",1,"kids",["nice belt"]],
+["Why did the tomato blush?","Because it saw the salad dressing",["Tomatoes turn bright red","'Dressing' has two meanings","The salad was getting dressed!"],"easy",1,"kids",["because it saw the salad dressing","it saw the salad dressing"]],
+["What do you call a fake noodle?","An impasta",["Mix 'imposter' with 'pasta'","Say imposter, but pasta-style","Im-pasta!"],"easy",1,"kids",["impasta"]],
+["Why did the student eat his homework?","Because the teacher said it was a piece of cake",["The homework was super easy","'Piece of cake' means easy","He took it literally!"],"easy",1,"kids",["because the teacher said it was a piece of cake","it was a piece of cake","piece of cake"]],
+["What kind of tree fits in your hand?","A palm tree",["You are holding one right now","Your hand has one","Palm!"],"easy",1,"kids",["palm tree","palm"]],
+["Why do cows wear bells?","Because their horns don't work",["Cows have horns on their heads","Cars have horns too","Horns that go honk!"],"easy",1,"kids",["because their horns don't work","their horns don't work"]],
+["What did the mama spider say to the baby spider?","You spend too much time on the web",["Little spiders surf...","Kids spend time on...","The web!"],"easy",1,"kids",["you spend too much time on the web","too much time on the web"]],
+["Why did the golfer bring two pairs of pants?","In case he got a hole in one",["Golfers aim for the hole","'Hole in one' is a perfect shot","...but a hole in pants is bad!"],"easy",1,"kids",["in case he got a hole in one","hole in one"]],
+/* ---- tricky (20) ---- */
+["A man pushes his car up to a hotel and shouts, 'I'm bankrupt!' What is happening?","He is playing Monopoly",["It is only a game","He pushes a token, not a real car","A board game with hotels!"],"hard",0,"tricky",["he is playing monopoly","playing monopoly","monopoly"]],
+["You see me once in June, twice in November, but never in May. What am I?","The letter E",["Count the letters in month names","J-U-N-E has one of me","N-O-V-E-M-B-E-R has two"],"medium",1,"tricky",["e","letter e","the letter e"]],
+["I am an odd number. Take away one letter and I become even.","Seven",["I am a number word","Remove my very first letter","'Seven' minus 's'!"],"hard",0,"tricky",["seven"]],
+["If you have three, you have three. If you have two, you have two. But if you have one, you have none. What am I?","Choices",["It is about having alternatives","With only one option...","...you have no choice at all!"],"hard",0,"tricky",["choices","options","a choice"]],
+["A cowboy rides into town on Friday, stays three days, and rides out on Friday. How?","His horse is named Friday",["Read it again very slowly","'Friday' might not be a day here","It is the horse's name!"],"medium",1,"tricky",["his horse is named friday","the horse is named friday","horse named friday"]],
+["What can you break without ever touching it?","A promise",["It is not physical at all","You 'break' it with words","Say 'I promise'... then don't!"],"medium",1,"tricky",["promise"]],
+["Two fathers and two sons go fishing. Each catches one fish, yet they bring home only three fish. How?","There are only three people: a grandfather, a father, and a son",["Count the people, not the titles","One person holds two titles","Grandpa is a father, and dad is both!"],"hard",0,"tricky",["three people","grandfather father son","grandfather","a grandfather"]],
+["I am the place where today comes before yesterday.","A dictionary",["My words are alphabetical","'Today' (T) comes before 'yesterday' (Y)","Look it up!"],"medium",1,"tricky",["dictionary"]],
+["What goes through towns and over hills but never moves an inch?","A road",["Cars travel upon me","I connect faraway places","I stay right where I am"],"easy",1,"tricky",["road"]],
+["If a rooster lays an egg on a pointed roof, which way will it roll?","It won't — roosters don't lay eggs",["Think about who lays eggs","Roosters are male chickens","Trick question!"],"easy",1,"tricky",["roosters don't lay eggs","it won't","nowhere","it wont"]],
+["How many months have 28 days?","All twelve of them",["Every month has at least 28","February has exactly 28, usually","All of them!"],"medium",1,"tricky",["all of them","twelve","12","all twelve"]],
+["What is so fragile that saying its name breaks it?","Silence",["Speak and it is gone","Libraries love it","Shhh!"],"medium",1,"tricky",["silence"]],
+["I have no life, but I can die. What am I?","A battery",["I power your remote","I run out of juice","Recharge me!"],"medium",1,"tricky",["battery"]],
+["What asks for nothing but gets answered all day long?","A telephone",["It rings and rings","You pick it up","'Hello?'"],"easy",1,"tricky",["telephone","phone"]],
+["What has 13 hearts but no organs at all?","A deck of cards",["It is used for games","Think of the four suits","Hearts is a suit!"],"hard",0,"tricky",["deck of cards","cards"]],
+["What is black when it is clean and white when it is dirty?","A chalkboard",["Teachers write on me","Chalk is white","I am dark green or black"],"medium",1,"tricky",["chalkboard","blackboard"]],
+["What can you serve but never eat?","A tennis ball",["It is about sports","You 'serve' in this game","Over the net!"],"medium",1,"tricky",["tennis ball"]],
+["What do you throw out when you want to use it, and take in when you are done?","An anchor",["Ships use me","I hold vessels still","Drop me in the harbor"],"hard",0,"tricky",["anchor"]],
+["What is always coming but never actually arrives?","Tomorrow",["It is always one day away","Today never becomes it","'Tomorrow never comes'"],"medium",1,"tricky",["tomorrow"]],
+["What gets sharper the more you use it?","Your brain",["Riddles exercise me","I live inside your head","Use me or lose me!"],"medium",1,"tricky",["brain","your brain","mind"]],
+/* ---- mystery (20) ---- */
+["I have a tail but I am not an animal; I streak across the night sky.","A comet",["I am a space traveler","I have a glowing tail","Look up at night!"],"medium",1,"mystery",["comet"]],
+["I arrive with the dark and I leave with the light.","Night",["Stars appear with me","Owls love me","Sleep tight!"],"easy",1,"mystery",["night"]],
+["I am a blanket you cannot fold, sprinkled with diamonds.","The starry sky",["Look up after sunset","I am full of twinkling lights","Constellations!"],"easy",1,"mystery",["starry sky","the night sky","stars"]],
+["I hoot in the dark but I am not a car horn.","An owl",["I have huge round eyes","I hunt at night","Hoo-hoo!"],"easy",1,"mystery",["owl"]],
+["I help you fall asleep by being counted.","Sheep",["Insomniacs count me","I jump over fences","Baa!"],"easy",1,"mystery",["sheep"]],
+["I am a thief that steals the sun every single evening.","The sunset",["I paint the sky orange","I happen every evening","Day says goodbye!"],"easy",1,"mystery",["sunset"]],
+["I glow without fire and I guide the ships safely home.","A lighthouse",["I stand on rocky coasts","My beam sweeps the sea","Sailors watch for me"],"medium",1,"mystery",["lighthouse"]],
+["I am a clock with no hands that crows at dawn.","A rooster",["I wake the whole farm","Cock-a-doodle-doo!","I crow at sunrise"],"easy",1,"mystery",["rooster"]],
+["I whisper through the trees while the world sleeps.","The night wind",["You hear me but cannot see me","I rustle the leaves","I howl so softly"],"easy",1,"mystery",["night wind","wind"]],
+["I am a detective's best friend, left behind at every scene.","Footprints",["Detectives follow me","I mark where someone walked","Check the mud!"],"medium",1,"mystery",["footprints","clues","footprint"]],
+["I hold a secret but I have no mouth to tell it.","A diary",["You write in me daily","I have a tiny lock","Dear diary..."],"medium",1,"mystery",["diary"]],
+["I am a puzzle box with no lid; you open me with your mind.","A riddle",["You are solving me right now","I have a question and an answer","So meta!"],"medium",1,"mystery",["riddle"]],
+["I flicker on porches in October with a scary carved face.","A jack-o'-lantern",["I am a carved pumpkin","Halloween is my holiday","A candle glows inside me"],"easy",1,"mystery",["jack-o'-lantern","jack o lantern","pumpkin"]],
+["I stretch across the floor when the lamp burns low.","Shadows",["Lamps create me","I grow long at dusk","I am dark and stretchy"],"easy",1,"mystery",["shadows","shadow","long shadows"]],
+["I am a million tiny suns, too far away to warm you.","Stars",["I twinkle at night","I form constellations","Wish upon me"],"easy",1,"mystery",["stars","star"]],
+["I hide by day and seek by night, with eight legs of fright.","A spider",["I spin sticky webs","Halloween loves me","Creepy crawly!"],"easy",1,"mystery",["spider"]],
+["I rise without yeast and haunt the night sky once a month.","The full moon",["I glow round and bright","Wolves howl at me","Once a month I am complete"],"medium",1,"mystery",["full moon","moon"]],
+["I tell stories without a voice, dancing on your bedroom wall.","Shadows",["Flashlights make me","I dance on the walls","Shadow puppets!"],"easy",1,"mystery",["shadows","shadow puppets","shadow"]],
+["I am the sound of silence after the clock strikes twelve.","Midnight",["I am the middle of the night","A brand-new day begins with me","12:00 AM"],"medium",1,"mystery",["midnight"]],
+["I visit when you sleep and show you worlds with your eyes closed.","A dream",["I can be sweet or scary","You wake up from me","Eyes closed, mind open"],"easy",1,"mystery",["dream"]]
+];
+
+/* ================= pure functions ================= */
+
+function riddlyToObject(e) {
+  return { q: e[0], a: e[1], hints: e[2].slice(), d: e[3], kids: e[4] === 1, c: e[5], alts: (e[6] || []).slice() };
+}
+
+function riddlyAllRiddles() {
+  return RIDDLY_RAW.map(riddlyToObject);
+}
+
+function riddlyCategories() {
+  return RIDDLY_CATEGORIES.map(function (c) {
+    var count = RIDDLY_RAW.filter(function (e) { return e[5] === c[0]; }).length;
+    return { id: c[0], name: c[1], count: count };
+  });
+}
+
+function riddlyByCategory(list, catId) {
+  if (!catId || catId === "all") return list.slice();
+  return list.filter(function (r) { return r.c === catId; });
+}
+
+function riddlyKidsOnly(list) {
+  return list.filter(function (r) { return r.kids; });
+}
+
+function riddlyByDifficulty(list, tier) {
+  if (!tier || tier === "all") return list.slice();
+  return list.filter(function (r) { return r.d === tier; });
+}
+
+function riddlyFilter(list, opts) {
+  var out = list.slice();
+  if (opts && opts.kids) out = riddlyKidsOnly(out);
+  if (opts && opts.difficulty) out = riddlyByDifficulty(out, opts.difficulty);
+  if (opts && opts.category) out = riddlyByCategory(out, opts.category);
+  return out;
+}
+
+function riddlyShuffle(arr, randFn) {
+  var rand = randFn || Math.random;
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(rand() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+/* Graduated 3-step hint ladder: step 0,1,2 -> hint text; anything else -> null (answer revealed separately) */
+function riddlyHint(riddle, step) {
+  if (!riddle || !riddle.hints) return null;
+  if (step === 0 || step === 1 || step === 2) return riddle.hints[step];
+  return null;
+}
+
+function riddlyHintCount(riddle) {
+  return (riddle && riddle.hints) ? riddle.hints.length : 0;
+}
+
+function riddlyNormalize(s) {
+  return String(s == null ? "" : s).toLowerCase()
+    .replace(/^(a|an|the)\s+/, "")
+    .replace(/[^a-z0-9 ]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function riddlyCheckAnswer(riddle, input) {
+  var n = riddlyNormalize(input);
+  if (!n || !riddle) return false;
+  var cands = [riddle.a].concat(riddle.alts || []).map(riddlyNormalize);
+  for (var i = 0; i < cands.length; i++) {
+    if (cands[i] && cands[i] === n) return true;
+  }
+  return false;
+}
+
+function riddlyHashStr(s) {
+  var h = 0;
+  for (var i = 0; i < s.length; i++) { h = ((h << 5) - h + s.charCodeAt(i)) | 0; }
+  return Math.abs(h);
+}
+
+/* Deterministic daily riddle from a YYYY-MM-DD date string */
+function riddlyDailyRiddle(dateStr) {
+  var all = riddlyAllRiddles();
+  if (!all.length) return null;
+  return all[riddlyHashStr(String(dateStr)) % all.length];
+}
+
+function riddlyPrevDay(dateStr) {
+  var d = new Date(String(dateStr) + "T12:00:00Z");
+  d.setUTCDate(d.getUTCDate() - 1);
+  return d.toISOString().slice(0, 10);
+}
+
+/* Streak bookkeeping: prev = {streak, last}; returns updated {streak, last} */
+function riddlyStreakNext(prev, todayStr) {
+  var streak = (prev && typeof prev.streak === "number" && prev.streak > 0) ? prev.streak : 0;
+  var last = (prev && prev.last) ? prev.last : null;
+  if (last === todayStr) return { streak: streak, last: last };
+  if (last === riddlyPrevDay(todayStr)) return { streak: streak + 1, last: todayStr };
+  return { streak: 1, last: todayStr };
+}
+
+/* Battle scoring: fewer hints + faster answers = more points */
+function riddlyBattlePoints(hintsUsed, secondsLeft) {
+  var h = Math.max(0, Math.min(3, hintsUsed | 0));
+  var s = Math.max(0, secondsLeft | 0);
+  return Math.max(10, 100 - h * 25) + s * 2;
+}
+
+function riddlyDifficultyLabel(tier) {
+  return tier === "easy" ? "Easy" : tier === "medium" ? "Medium" : tier === "hard" ? "Hard" : tier;
+}
+
+</script>
+<script>
+(function(){
+  "use strict";
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+  function todayStr(){ var d=new Date(); function p(n){return String(n).padStart(2,"0");}
+    return d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate()); }
+
+  var filters = { category:"all", difficulty:"all", kids:false };
+  var deck=[], deckIdx=0, current=null, hintStep=0;
+
+  function catName(id){ var cs=riddlyCategories();
+    for(var i=0;i<cs.length;i++) if(cs[i].id===id) return cs[i].name; return "Mixed"; }
+
+  function buildChips(){
+    var wrap=$("category-packs"); wrap.innerHTML="";
+    function add(id,label){
+      var b=document.createElement("button");
+      b.className="chip"+(filters.category===id?" active":"");
+      b.textContent=label; b.setAttribute("aria-pressed", filters.category===id?"true":"false");
+      b.onclick=function(){ filters.category=id; buildChips(); rebuildDeck(); nextRiddle(); };
+      wrap.appendChild(b);
+    }
+    add("all","All packs");
+    riddlyCategories().forEach(function(c){ add(c.id, c.name+" ("+c.count+")"); });
+  }
+
+  function rebuildDeck(){
+    var list=riddlyFilter(riddlyAllRiddles(), filters);
+    deck=riddlyShuffle(list); deckIdx=0;
+    $("deck-count").textContent = list.length ? (list.length+" riddles in deck") : "";
+  }
+
+  function renderCard(){
+    var q=$("riddle-question"), fb=$("feedback");
+    fb.textContent=""; fb.style.color="";
+    $("answer-display").classList.add("hidden");
+    $("answer-input").value="";
+    $("hint-area").innerHTML="";
+    if(!current){
+      q.textContent="No riddles match these filters — try a different difficulty or turn off Kids Mode.";
+      $("riddle-difficulty").textContent="—"; $("riddle-difficulty").className="badge-diff diff-medium";
+      $("riddle-category").textContent="Empty deck";
+      $("hint-btn").textContent="Need a hint? (0/3)";
+      return;
+    }
+    q.textContent=current.q;
+    var d=$("riddle-difficulty");
+    d.textContent=riddlyDifficultyLabel(current.d);
+    d.className="badge-diff diff-"+current.d;
+    $("riddle-category").textContent=catName(current.c);
+    $("hint-btn").textContent="Need a hint? (0/3)";
+  }
+
+  function nextRiddle(){
+    if(deckIdx>=deck.length) rebuildDeck();
+    current = deck.length ? deck[deckIdx % deck.length] : null;
+    deckIdx++; hintStep=0; renderCard();
+  }
+
+  function showHint(){
+    if(!current) return;
+    var h=riddlyHint(current, hintStep);
+    if(h===null){ $("feedback").textContent="No more hints — take a guess or reveal the answer!";
+      $("feedback").style.color="#fbbf24"; return; }
+    var div=document.createElement("div");
+    div.className="hint-stub";
+    div.innerHTML="<strong style='color:#4ade80'>Hint "+(hintStep+1)+":</strong> "+esc(h);
+    $("hint-area").appendChild(div);
+    hintStep++;
+    $("hint-btn").textContent="Need a hint? ("+hintStep+"/3)";
+  }
+
+  function checkPlay(){
+    if(!current) return;
+    var ok=riddlyCheckAnswer(current, $("answer-input").value);
+    var fb=$("feedback");
+    if(ok){ fb.textContent="Correct! Brilliant solving."; fb.style.color="#4ade80"; confetti(); }
+    else { fb.textContent="Not quite — try again or take a hint!"; fb.style.color="#f87171"; }
+  }
+
+  function revealPlay(){
+    if(!current) return;
+    var box=$("answer-display");
+    box.innerHTML="<strong style='color:#fbbf24'>Answer:</strong> "+esc(current.a);
+    box.classList.remove("hidden");
+  }
+
+  /* ---------- confetti ---------- */
+  function confetti(){
+    var colors=["#fbbf24","#4ade80","#f5ead6","#f472b6","#60a5fa"];
+    for(var i=0;i<28;i++){
+      var b=document.createElement("div");
+      b.className="confetti-bit";
+      b.style.left=(Math.random()*100)+"vw";
+      b.style.background=colors[i%colors.length];
+      b.style.animationDuration=(1.6+Math.random()*1.6)+"s";
+      document.body.appendChild(b);
+      (function(el){ setTimeout(function(){ el.remove(); }, 3400); })(b);
+    }
+  }
+
+  /* ---------- battle ---------- */
+  var bTimer=null, bTimeLeft=0, bTotal=60, bScore=0, bStreak=0, bBestStreak=0, bRiddle=null, bHints=0, bHintStep=0;
+  function battleBest(){ try{ return parseInt(localStorage.getItem("riddly-battle-best")||"0",10)||0; }catch(e){ return 0; } }
+  function battleSaveBest(s){ try{ if(s>battleBest()) localStorage.setItem("riddly-battle-best", String(s)); }catch(e){} }
+
+  function battlePick(){
+    var list=riddlyFilter(riddlyAllRiddles(), filters);
+    if(!list.length) list=riddlyAllRiddles();
+    bRiddle=list[Math.floor(Math.random()*list.length)];
+    bHints=0; bHintStep=0;
+    $("battle-question").textContent=bRiddle.q;
+    $("battle-hints").innerHTML="";
+    $("battle-input").value="";
+    $("battle-feedback").textContent="";
+    $("battle-input").focus();
+  }
+  function battleRender(){
+    $("battle-score").textContent=bScore;
+    $("battle-streak").textContent=bStreak;
+    $("battle-timer").textContent=bTimeLeft;
+    $("battle-timer-bar").style.width=Math.max(0,(bTimeLeft/bTotal*100))+"%";
+  }
+  function battleStart(){
+    bTotal=parseInt($("battle-time").value,10)||60;
+    bTimeLeft=bTotal; bScore=0; bStreak=0; bBestStreak=0;
+    $("battle-setup").classList.add("hidden");
+    $("battle-end").classList.add("hidden");
+    $("battle-arena").classList.remove("hidden");
+    battlePick(); battleRender();
+    clearInterval(bTimer);
+    bTimer=setInterval(function(){
+      bTimeLeft--; battleRender();
+      if(bTimeLeft<=0){ battleEnd(); }
+    },1000);
+  }
+  function battleEnd(){
+    clearInterval(bTimer);
+    battleSaveBest(bScore);
+    $("battle-arena").classList.add("hidden");
+    $("battle-end").classList.remove("hidden");
+    $("battle-final").textContent=bScore;
+    $("battle-best-streak").textContent=bBestStreak;
+    $("battle-best").textContent=battleBest();
+    if(bScore>0) confetti();
+  }
+  function battleSubmit(){
+    if(!bRiddle||bTimeLeft<=0) return;
+    var ok=riddlyCheckAnswer(bRiddle, $("battle-input").value);
+    var fb=$("battle-feedback");
+    if(ok){
+      var pts=riddlyBattlePoints(bHints, bTimeLeft);
+      bScore+=pts; bStreak++;
+      if(bStreak>bBestStreak) bBestStreak=bStreak;
+      fb.textContent="Correct! +"+pts+" points"; fb.style.color="#4ade80";
+      battleRender(); confetti();
+      setTimeout(battlePick, 700);
+    } else {
+      bStreak=0; battleRender();
+      fb.textContent="Nope! Streak reset — keep going!"; fb.style.color="#f87171";
+    }
+  }
+  function battleHint(){
+    if(!bRiddle||bTimeLeft<=0) return;
+    var h=riddlyHint(bRiddle, bHintStep);
+    if(h===null) return;
+    var div=document.createElement("div");
+    div.className="hint-stub";
+    div.innerHTML="<strong style='color:#4ade80'>Hint "+(bHintStep+1)+":</strong> "+esc(h);
+    $("battle-hints").appendChild(div);
+    bHintStep++; bHints++;
+  }
+  function battleSkip(){ bStreak=0; battleRender(); battlePick(); }
+
+  /* ---------- daily ---------- */
+  var dRiddle=null, dHintStep=0;
+  function dailyStore(){
+    try{ return JSON.parse(localStorage.getItem("riddly-daily-v1")||"{}"); }catch(e){ return {}; }
+  }
+  function dailySave(s){ try{ localStorage.setItem("riddly-daily-v1", JSON.stringify(s)); }catch(e){} }
+  function dailyInit(){
+    var t=todayStr();
+    dRiddle=riddlyDailyRiddle(t);
+    dHintStep=0;
+    $("daily-riddle").textContent=dRiddle.q;
+    $("daily-hints").innerHTML="";
+    $("daily-answer-display").classList.add("hidden");
+    $("daily-input").value="";
+    var st=dailyStore();
+    var solvedToday = st.days && st.days[t];
+    if(solvedToday){
+      var upd=riddlyStreakNext({streak:st.streak||0,last:st.last||null}, t);
+      st.streak=upd.streak; st.last=upd.last; dailySave(st);
+      $("daily-feedback").textContent="Already solved today — nice! Come back tomorrow.";
+      $("daily-feedback").style.color="#4ade80";
+    } else {
+      $("daily-feedback").textContent="";
+    }
+    $("daily-streak").textContent=st.streak||0;
+    renderCalendar(st.days||{}, t);
+  }
+  function dailyCheck(){
+    var t=todayStr();
+    var st=dailyStore();
+    if(st.days && st.days[t]) return;
+    var ok=riddlyCheckAnswer(dRiddle, $("daily-input").value);
+    var fb=$("daily-feedback");
+    if(ok){
+      st.days=st.days||{}; st.days[t]=true;
+      var upd=riddlyStreakNext({streak:st.streak||0,last:st.last||null}, t);
+      st.streak=upd.streak; st.last=upd.last; dailySave(st);
+      fb.textContent="Correct! Streak: "+st.streak+" day(s). See you tomorrow!";
+      fb.style.color="#4ade80";
+      $("daily-streak").textContent=st.streak;
+      renderCalendar(st.days, t); confetti();
+    } else {
+      fb.textContent="Not quite — try a hint!"; fb.style.color="#f87171";
+    }
+  }
+  function dailyHint(){
+    var h=riddlyHint(dRiddle, dHintStep);
+    if(h===null){ $("daily-feedback").textContent="No more hints!"; $("daily-feedback").style.color="#fbbf24"; return; }
+    var div=document.createElement("div");
+    div.className="hint-stub";
+    div.innerHTML="<strong style='color:#4ade80'>Hint "+(dHintStep+1)+":</strong> "+esc(h);
+    $("daily-hints").appendChild(div);
+    dHintStep++;
+    $("daily-hint-btn").textContent="Hint ("+dHintStep+"/3)";
+  }
+  function dailyReveal(){
+    var box=$("daily-answer-display");
+    box.innerHTML="<strong style='color:#fbbf24'>Answer:</strong> "+esc(dRiddle.a)+"<br><span style='font-size:.85rem'>Revealing the answer won't grow your streak — solve it for real tomorrow!</span>";
+    box.classList.remove("hidden");
+  }
+  function renderCalendar(days, t){
+    var cal=$("streak-calendar"); cal.innerHTML="";
+    var now=new Date();
+    for(var i=29;i>=0;i--){
+      var d=new Date(now.getFullYear(), now.getMonth(), now.getDate()-i);
+      function p(n){return String(n).padStart(2,"0");}
+      var key=d.getFullYear()+"-"+p(d.getMonth()+1)+"-"+p(d.getDate());
+      var cell=document.createElement("div");
+      cell.className="cal-day"+(days[key]?" solved":"")+(key===t?" today":"");
+      cell.textContent=d.getDate();
+      cell.title=key+(days[key]?" — solved":"");
+      cal.appendChild(cell);
+    }
+  }
+
+  /* ---------- tabs ---------- */
+  function showTab(which){
+    ["play","battle","daily"].forEach(function(m){
+      $("mode-"+m).classList.toggle("hidden", m!==which);
+      var tab=$("tab-"+m);
+      tab.classList.toggle("active", m===which);
+      tab.setAttribute("aria-selected", m===which?"true":"false");
+    });
+    if(which==="daily") dailyInit();
+  }
+
+  /* ---------- wire up ---------- */
+  $("tab-play").onclick=function(){ showTab("play"); };
+  $("tab-battle").onclick=function(){ showTab("battle"); };
+  $("tab-daily").onclick=function(){ showTab("daily"); };
+  $("difficulty-filter").onchange=function(){ filters.difficulty=this.value; rebuildDeck(); nextRiddle(); };
+  $("kids-toggle").onchange=function(){ filters.kids=this.checked; rebuildDeck(); nextRiddle(); };
+  $("shuffle-btn").onclick=function(){ rebuildDeck(); nextRiddle(); };
+  $("hint-btn").onclick=showHint;
+  $("check-btn").onclick=checkPlay;
+  $("answer-btn").onclick=revealPlay;
+  $("new-riddle-btn").onclick=nextRiddle;
+  $("answer-input").addEventListener("keydown", function(e){ if(e.key==="Enter") checkPlay(); });
+  $("battle-start").onclick=battleStart;
+  $("battle-again").onclick=function(){
+    $("battle-end").classList.add("hidden");
+    $("battle-setup").classList.remove("hidden");
+    $("battle-best").textContent=battleBest();
+  };
+  $("battle-submit").onclick=battleSubmit;
+  $("battle-hint").onclick=battleHint;
+  $("battle-skip").onclick=battleSkip;
+  $("battle-input").addEventListener("keydown", function(e){ if(e.key==="Enter") battleSubmit(); });
+  $("daily-check-btn").onclick=dailyCheck;
+  $("daily-hint-btn").onclick=dailyHint;
+  $("daily-answer-btn").onclick=dailyReveal;
+  $("daily-input").addEventListener("keydown", function(e){ if(e.key==="Enter") dailyCheck(); });
+
+  /* ---------- init ---------- */
+  $("battle-best").textContent=battleBest();
+  buildChips(); rebuildDeck(); nextRiddle();
+})();
+</script>
+</body>
+</html>
